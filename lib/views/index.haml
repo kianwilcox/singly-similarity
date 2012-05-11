@@ -1,0 +1,35 @@
+%h1 Singly OAuth Example
+%h2
+  - if @profiles
+    Nice to see you again!
+  - else
+    Please connect a service
+- if @profiles
+  %p
+    Your Singly ID is
+    = @profiles["id"]
+    \.
+    %a(href="/logout") Log out
+- %w[facebook twitter].each do |service|
+  %li
+    = service.capitalize
+    - if @profiles && @profiles[service]
+      is connected as
+      = @profiles[service]
+    - else
+      is not connected.
+      %a(href="/auth/#{service}") Connect
+
+- if @counts
+  %ul
+  - @counts.keys.each do |id|
+    %li
+      Author:
+      = @counts[id][:name]
+      %br
+      Popular Words:
+      %ul
+        - @counts[id][:words].to_a.sort{|x, y| y.last <=> x.last }.map do |word, count|
+          %li
+            = word
+            = count
