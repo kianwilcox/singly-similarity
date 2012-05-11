@@ -66,12 +66,20 @@ SINGLY_API_BASE = "https://api.singly.com"
 
 def auth_params(service)
   {
-    :client_id => ENV["SINGLY_ID"],
+    :client_id => singly_id,
     :redirect_uri => callback_url,
     :service => service
   }.map {|key, value|
     "#{key}=#{value}"
   }.join("&")
+end
+
+def singly_id
+  "761416d932228a0713826afb232049d9"
+end
+
+def singly_secret
+  "38cd05767fbd0c249842295d9e2fa2b7"
 end
 
 def auth_url(servie)
@@ -95,8 +103,8 @@ end
 
 def token_params(code)
   {
-    :client_id => ENV["SINGLY_ID"],
-    :client_secret => ENV["SINGLY_SECRET"],
+    :client_id => singly_id,
+    :client_secret => singly_secret,
     :code => code
   }
 end
