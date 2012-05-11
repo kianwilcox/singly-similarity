@@ -13,6 +13,36 @@ end
 
 get "/feed" do
   if session[:access_token]
+    @feed = HTTParty.get(service_data("facebook", "feed"), {
+                :query => {:access_token => session[:access_token], :limit => 1000}
+              }).parsed_response
+    @counts = @feed.inject({:all => {:name => "All", :words => {}}}) do |hash, item|
+      if message = item["data"]["message"]
+        from_id = item["data"]["from"]["id"]
+        hash[from_id]||= {:name => item["data"]["from"]["name"], :words => {}}
+        words = message.split(" ").inject({}) do |word_hash, word|
+          word.downcase!
+          unless forbidden_word(word)
+            word_hash[word]||= 0
+            word_hash[word]+= 1
+          end
+          word_hash
+        end
+        words.keys.each do |word|
+          hash[from_id][:words][word] ||= 0
+          hash[from_id][:words][word] += words[word]
+          hash[:all][:words][word] ||= 0
+          hash[:all][:words][word] += words[word]
+        end
+      end
+      hash
+    end
+  end
+  haml :index
+end
+
+get "/home" do
+  if session[:access_token]
     @feed = HTTParty.get(service_data("facebook", "home"), {
                 :query => {:access_token => session[:access_token], :limit => 1000}
               }).parsed_response
@@ -37,11 +67,6 @@ get "/feed" do
       end
       hash
     end
-    @counts.except(:all).keys.inject({}) do |hash, id|
-      
-    end
-    
-    
   end
   haml :index
 end
